@@ -1,0 +1,424 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    --background-color: #191919;
+    --card-background-color: #2A2A2A;
+    --text-color: #FFFFFF;
+    --sec-text-color: #BBBBBB;
+    --font-family: 'Poppins', sans-serif;
+    --accent-color: #5ADBE4;
+    --accent-hover-color: #459ea4;
+    --gradient-color: linear-gradient(135deg, #5DE0E6, #004AAD);
+
+    --remove-button-color: #FF4C4C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    transition: all 0.2s ease-in-out;
+}
+
+body {
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+#gamedescription{
+    width: 50vw;
+    text-align: center;
+    color: var(--sec-text-color);
+    margin-bottom: 25px;
+}
+
+/* Header Styling */
+header.banner img {
+    height: 250px;
+    width: auto;
+    border-radius: 10px;
+    margin-top: 2.5%;
+}
+
+/* Player Slot Styling */
+#playerSlots {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.player-slot {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.player-slot .slot-num {
+    font-size: 1.2rem;
+    font-weight: 600;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    background-color: var(--background-color);
+    margin-right: 5px;
+    border-radius: 5px;
+}
+
+.roles-icons,
+.ranks-icons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    margin-right: 20px;
+}
+
+.player-slot .roles-icons label:first-child,
+.player-slot .ranks-icons label:first-child {
+    display: none;
+}
+
+.player-slot .roles-icons label,
+.player-slot .ranks-icons label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    height: 30px;
+    width: 30px;
+    aspect-ratio: 1;
+    background-color: var(--background-color);
+}
+
+.player-slot label img {
+    height: 20px;
+    aspect-ratio: 1;
+}
+
+.player-slot .roles-icons label.selected,
+.player-slot .ranks-icons label.selected {
+    border: 1px solid var(--accent-color);
+}
+
+
+.player-slot .roles-icons label:hover,
+.player-slot .ranks-icons label:hover {
+    border: 1px solid var(--accent-hover-color);
+}
+
+
+input[type="checkbox"],
+input[type="radio"] {
+    display: none;
+}
+
+input[type="text"] {
+    background-color: var(--background-color);
+    border: none;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-size: 16px;
+    margin-left: 10px;
+    padding: 5px 10px;
+    flex-grow: 1;
+    margin-right: 20px;
+}
+
+#playerSlots button.remove-slot-btn {
+    background-color: var(--remove-button-color);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+}
+
+#playerSlots button.remove-slot-btn:hover {
+    background-color: #FF1A1A;
+}
+
+/* BTNs */
+.controls {
+    display: flex;
+    gap: 10px;
+}
+
+#addPlayerBtn {
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+    aspect-ratio: 1;
+    width: 50px;
+    height: 50px;
+    border: none;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#balanceBtn {
+    background: var(--gradient-color);
+    border: none;
+    color: var(--text-color);
+    border-radius: 10px;
+    font-size: 1.2rem;
+    padding: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Result Design */
+#teams {
+    display: none;
+}
+
+#teams:has(.team) {
+    display: flex;
+    margin-top: 75px;
+    margin-bottom: 75px;
+    flex-direction: row;
+    padding: 20px;
+    border-radius: 10px;
+    width: 70vw;
+    background-color: var(--card-background-color);
+    justify-content: space-between;
+    color: var(--text-color);
+    gap: 25px;
+}
+
+.team {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 50%;
+    position: relative;
+}
+
+.team:first-child::after {
+    position: absolute;
+    content: '';
+    background: var(--gradient-color);
+    height: 100%;
+    width: 5px;
+    top: 0;
+    right: -12.5px;
+    border-radius: 10px;
+}
+
+.team:first-child .player {
+    display: flex;
+    flex-direction: row;
+}
+
+.team:last-child .player {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.team h2,
+#specators h3 {
+    font-size: 2rem;
+}
+
+.team:last-child h2 {
+    text-align: right;
+}
+
+.team .player {
+    width: 100%;
+    gap: 10px;
+}
+
+.team .player span,
+.spectator span {
+    background-color: var(--background-color)
+}
+
+.team .player .player-number,
+.team .player .player-rank,
+.team .player .player-lane,
+.spectator .player-rank,
+.spectator .player-number {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-size: 1.5rem;
+}
+
+.team:last-child .player .player-name {
+    justify-content: end;
+}
+
+.team .player .player-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+    font-size: 1.2rem;
+}
+
+.team .player .player-rank img,
+.team .player .player-lane img,
+.spectator .player-rank img {
+    height: 30px !important;
+    width: 30px !important;
+}
+
+#specators:has(div) {
+    display: flex;
+    margin-bottom: 75px;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 10px;
+    width: 30vw;
+    background-color: var(--card-background-color);
+    justify-content: space-between;
+    color: var(--text-color);
+    gap: 25px;
+}
+
+#specators .spectator {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+#specators .spectator .player-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+    font-size: 1.2rem;
+}
+
+/* Background Decor */
+.pipe {
+    background: var(--gradient-color);
+    width: 100vw;
+    height: 100px;
+}
+
+#pipe-1 {
+    transform: rotate(-45deg);
+    position: absolute;
+    width: 400px;
+    top: 40px;
+    left: -100px;
+    z-index: -1;
+}
+
+#pipe-2 {
+    transform: rotate(-45deg);
+    position: fixed;
+    width: 400px;
+    bottom: 10px;
+    right: -100px;
+    z-index: -1;
+}
+
+#pipe-3 {
+    transform: rotate(135deg);
+    position: fixed;
+    width: 800px;
+    bottom: 200px;
+    right: -300px;
+    z-index: -1;
+}
+
+/* Versionnummber Styling */
+.version {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.rn-modal {
+    background-color: transparent !important;
+}
+
+.rn-header {
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+}
+
+.rn-content {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 10px 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.rn-content h1:first-child {
+    margin-top: 0;
+}
+
+.rn-content h1 {
+    margin-top: 50px;
+}
+
+.rn-close {
+    color: var(--text-color);
+}
+
+.rn-content ul {
+    padding-left: 25px;
+    color: var(--sec-text-color);
+}
+
+/* Custom scrollbars for modern browsers */
+html, .rn-content {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--accent-color) rgba(255,255,255,0.03);
+}
+
+/* WebKit-based browsers */
+html::-webkit-scrollbar,
+.rn-content::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+html::-webkit-scrollbar-track,
+.rn-content::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+}
+
+html::-webkit-scrollbar-thumb,
+.rn-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(90,219,228,0.95), rgba(0,74,173,0.95));
+    border-radius: 10px;
+    border: 3px solid rgba(0,0,0,0.12);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+.rn-content::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.05);
+}
+
+html::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Slight inset on the modal content to show rounded track */
+.rn-content { padding-right: 14px; }
