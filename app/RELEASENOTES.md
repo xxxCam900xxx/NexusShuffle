@@ -1,3 +1,7 @@
+# v2.0.1 | Even Better Prios
+- UI Update for listing right lanes!
+- Updated when lane prio is active that first rank then prio!
+
 # v2.0.0 | Better Prios
 - Updated Shuffle to Rank Balancing
 - Added Checkbox for Lane Priority

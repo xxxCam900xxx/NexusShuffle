@@ -391,7 +391,21 @@ function balanceTeams(playerList, opts = { randomize: false, considerLanes: true
 				teamB.push(p); bScore += score;
 			}
 		}
-		return { teamA: teamA.slice(0, 5), teamB: teamB.slice(0, 5) };
+		// In Rank-only mode assign lanes so players can play different lanes each shuffle.
+		// We still display lanes Top->Support, but which player gets which lane is randomized.
+		const roleDisplayOrder = ["Top", "Jungle", "Mid", "Bot", "Support"];
+		teamA = teamA.slice(0, 5);
+		teamB = teamB.slice(0, 5);
+		let rolesA = roleDisplayOrder.slice();
+		let rolesB = roleDisplayOrder.slice();
+		if (opts.randomize) { shuffleArray(rolesA); shuffleArray(rolesB); }
+		teamA.forEach((player, i) => {
+			player.assignedRole = rolesA[i] || (player.roles.find(r => r !== 'Fill') || player.roles[0] || 'Fill');
+		});
+		teamB.forEach((player, i) => {
+			player.assignedRole = rolesB[i] || (player.roles.find(r => r !== 'Fill') || player.roles[0] || 'Fill');
+		});
+		return { teamA, teamB };
 	}
 
 	let playerPool = playerList.map(p => ({ ...p, assignedRole: null }));
@@ -409,12 +423,14 @@ function balanceTeams(playerList, opts = { randomize: false, considerLanes: true
 		if (!candidates.length) return null;
 		// Score: prefer players who selected the role, then Fill, then others; also weight by rank
 		const scored = candidates.map(p => {
-			let score = rankToScore(p.rank) * 2; // rank baseline
-			if (p.roles.includes(role)) score += 50; // strong preference bonus
-			else if (p.roles.includes("Fill")) score += 20; // flexible bonus
-			else score -= 20; // penalize assigning a non-preferred role when possible
+			// Make rank the dominant factor: high multiplier ensures rank dominates preferences
+			let score = rankToScore(p.rank) * 100;
+			// Small bonuses for role preference so lane wishes are secondary to rank
+			if (p.roles.includes(role)) score += 6; // small preference bonus
+			else if (p.roles.includes("Fill")) score += 2; // flexible bonus
+			else score -= 2; // slight penalty for non-preferred role
 			// tiny randomness as tie-breaker so assignments vary over repeated shuffles
-			score += (opts.randomize ? Math.random() * 6 : Math.random() * 1);
+			score += (opts.randomize ? Math.random() * 3 : Math.random() * 0.5);
 			return { p, score };
 		});
 		scored.sort((a, b) => b.score - a.score);
