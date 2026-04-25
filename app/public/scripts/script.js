@@ -3,10 +3,12 @@
 let slotData = [{ name: "", roles: [], rank: "" }];
 let rotationIndex = 0;
 let roleRotation = 0;
+let considerLanes = true;
 const STORAGE_KEY = 'nexusShuffleState';
 
 function saveState() {
 	const state = { slotData, rotationIndex, roleRotation };
+	state.considerLanes = considerLanes;
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 	} catch (e) {
@@ -22,6 +24,7 @@ function loadState() {
 		if (s.slotData && Array.isArray(s.slotData)) slotData = s.slotData;
 		rotationIndex = typeof s.rotationIndex === 'number' ? s.rotationIndex : 0;
 		roleRotation = typeof s.roleRotation === 'number' ? s.roleRotation : 0;
+		considerLanes = typeof s.considerLanes === 'boolean' ? s.considerLanes : true;
 	} catch (e) {
 		console.warn('Failed to load state', e);
 	}
@@ -43,12 +46,13 @@ const rankIcons = {
 	Silver: "public/assets/rank/rank-silver.png",
 	Gold: "public/assets/rank/rank-gold.png",
 	Platinum: "public/assets/rank/rank-platinum.png",
+	Emerald: "public/assets/rank/rank-emerald.png",
 	Diamond: "public/assets/rank/rank-diamond.png",
 	Master: "public/assets/rank/rank-master.png",
 	Grandmaster: "public/assets/rank/rank-grandmaster.png",
 	Challenger: "public/assets/rank/rank-challenger.png"
 };
-const ranks = ["Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Grandmaster", "Challenger"];
+const ranks = ["Iron", "Bronze", "Silver", "Gold", "Platinum", "Emerald", "Diamond", "Master", "Grandmaster", "Challenger"];
 
 function rankToScore(rank) {
 	const idx = ranks.indexOf(rank);
@@ -201,6 +205,15 @@ function renderSlots() {
 // Buttons and actions (wait for DOM content to ensure elements exist)
 document.addEventListener("DOMContentLoaded", () => {
 	loadState();
+	// wire the "consider lanes" checkbox
+	const considerLanesChk = document.getElementById('considerLanesChk');
+	if (considerLanesChk) {
+		considerLanesChk.checked = considerLanes;
+		considerLanesChk.addEventListener('change', (e) => {
+			considerLanes = !!e.target.checked;
+			saveState();
+		});
+	}
 	const addBtn = document.getElementById("addPlayerBtn");
 	if (addBtn) addBtn.addEventListener("click", () => {
 		slotData.push({ name: "", roles: [], rank: "" });
@@ -220,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		// select next round with wrap-around so spectators rotate back in
 		const sel = selectRound(players, rotationIndex, 10);
 		const { playersToBalance, spectators, nextIndex } = sel;
-		const { teamA, teamB } = balanceTeams(playersToBalance, { randomize: false });
+		const { teamA, teamB } = balanceTeams(playersToBalance, { randomize: true, considerLanes });
 		renderTeams(teamA, teamB, players.length, spectators);
 		rotationIndex = nextIndex;
 		saveState();
@@ -342,13 +355,45 @@ function nextRotation() {
 	if (rotationIndex >= players.length) rotationIndex = 0;
 	const playersToBalance = players.slice(rotationIndex, rotationIndex + 10);
 	const spectators = players.length > 10 ? players.slice(10) : [];
-	const { teamA, teamB } = balanceTeams(playersToBalance);
+	const { teamA, teamB } = balanceTeams(playersToBalance, { randomize: true, considerLanes });
 	renderTeams(teamA, teamB, players.length, spectators);
 	saveState();
 }
 
-function balanceTeams(playerList, opts = { randomize: false }) {
+function balanceTeams(playerList, opts = { randomize: false, considerLanes: true }) {
 	// Ensure 1v1 per role (Top/Jungle/Mid/Bot/Support) as far as possible.
+	const consider = opts.considerLanes !== false;
+	// If lane consideration is disabled, balance purely by rank sums
+	if (!consider) {
+		// Create a sort key that primarily sorts by rank but can use a tiny random tiebreaker
+		const keyed = playerList.slice().map(p => ({ p, score: rankToScore(p.rank), rand: (opts.randomize ? Math.random() : 0) }));
+		keyed.sort((a, b) => {
+			if (b.score !== a.score) return b.score - a.score;
+			return b.rand - a.rand;
+		});
+		const sorted = keyed.map(k => k.p);
+		let teamA = [], teamB = [];
+		let aScore = 0, bScore = 0;
+		while (sorted.length) {
+			const p = sorted.shift();
+			const score = rankToScore(p.rank);
+			if (teamA.length >= 5) {
+				p.assignedRole = p.roles.find(r => r !== 'Fill') || p.roles[0] || 'Fill';
+				teamB.push(p); bScore += score;
+			} else if (teamB.length >= 5) {
+				p.assignedRole = p.roles.find(r => r !== 'Fill') || p.roles[0] || 'Fill';
+				teamA.push(p); aScore += score;
+			} else if (aScore <= bScore) {
+				p.assignedRole = p.roles.find(r => r !== 'Fill') || p.roles[0] || 'Fill';
+				teamA.push(p); aScore += score;
+			} else {
+				p.assignedRole = p.roles.find(r => r !== 'Fill') || p.roles[0] || 'Fill';
+				teamB.push(p); bScore += score;
+			}
+		}
+		return { teamA: teamA.slice(0, 5), teamB: teamB.slice(0, 5) };
+	}
+
 	let playerPool = playerList.map(p => ({ ...p, assignedRole: null }));
 	if (opts.randomize) shuffleArray(playerPool);
 	let teamA = [], teamB = [];
